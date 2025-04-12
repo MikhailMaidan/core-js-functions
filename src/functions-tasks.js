@@ -32,8 +32,14 @@ function getCurrentFunctionName() {
  *   getFunctionBody(hiHello) => "function hiHello() { console.log('hello world'); }"
  *
  */
-function getFunctionBody(/* func */) {
-  throw new Error('Not implemented');
+function getFunctionBody(func) {
+  if (typeof func === 'undefined') {
+    return '';
+  }
+  if (typeof func !== 'function') {
+    throw new TypeError('Argument must be a function');
+  }
+  return func.toString();
 }
 
 /**
@@ -140,8 +146,18 @@ function memoize(func) {
  * }, 2);
  * retryer() => 2
  */
-function retry(/* func, attempts */) {
-  throw new Error('Not implemented');
+function retry(func, attempts) {
+  return function arg(...args) {
+    let lastError;
+    for (let i = 0; i < attempts; i += 1) {
+      try {
+        return func(...args);
+      } catch (e) {
+        lastError = e;
+      }
+    }
+    throw lastError;
+  };
 }
 
 /**
@@ -167,8 +183,15 @@ function retry(/* func, attempts */) {
  * cos(3.141592653589793) ends
  *
  */
-function logger(/* func, logFunc */) {
-  throw new Error('Not implemented');
+function logger(func, logFunc) {
+  return (...args) => {
+    const serializedArgs = args.map((arg) => JSON.stringify(arg)).join(',');
+    const logPrefix = `${func.name}(${serializedArgs})`;
+    logFunc(`${logPrefix} starts`);
+    const result = func(...args);
+    logFunc(`${logPrefix} ends`);
+    return result;
+  };
 }
 
 /**
